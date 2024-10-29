@@ -1,0 +1,41 @@
+import { Knex } from 'knex';
+
+export async function up(knex: Knex): Promise<void> {
+  // Users table
+  await knex.schema.createTable('users', (table) => {
+    table.uuid('id').primary();
+    table.string('email').notNullable().unique();
+    table.string('password').notNullable();
+    table.string('first_name').notNullable();
+    table.string('last_name').notNullable();
+    table.timestamps(true, true);
+  });
+
+  // Wallets table
+  await knex.schema.createTable('wallets', (table) => {
+    table.uuid('id').primary();
+    table.uuid('user_id').references('id').inTable('users').onDelete('CASCADE');
+    table.decimal('balance', 15, 2).defaultTo(0.00);
+    table.string('currency').defaultTo('NGN');
+    table.string('status').defaultTo('active');
+    table.timestamps(true, true);
+  });
+
+  // Transactions table
+  await knex.schema.createTable('transactions', (table) => {
+    table.uuid('id').primary();
+    table.uuid('wallet_id').references('id').inTable('wallets').onDelete('CASCADE');
+    table.string('type').notNullable();
+    table.decimal('amount', 15, 2).notNullable();
+    table.string('status').notNullable();
+    table.string('reference').notNullable().unique();
+    table.jsonb('metadata');
+    table.timestamps(true, true);
+  });
+}
+
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.dropTableIfExists('transactions');
+  await knex.schema.dropTableIfExists('wallets');
+  await knex.schema.dropTableIfExists('users');
+}
