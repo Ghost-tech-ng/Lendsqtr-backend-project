@@ -6,10 +6,16 @@ import dotenv from 'dotenv';
 import walletRoutes from './routes/wallet.routes';
 import authRoutes from './routes/auth.routes';
 import errorHandler from './middleware/error.middleware';
+import swaggerUi from 'swagger-ui-express';
+import { specs } from './config/swagger';
 
 dotenv.config();
 
 const app = express();
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 
 // Middleware
 app.use(helmet());
